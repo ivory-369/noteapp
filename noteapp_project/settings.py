@@ -23,7 +23,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost', 
-    'ivory-369.pythonanywhere.com'
+    'ivory369.pythonanywhere.com'
 ]
 
 # --- アプリケーション定義 ---
