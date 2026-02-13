@@ -5,12 +5,26 @@
 /* 全体 */
 body {
   font-family: sans-serif;
-  margin: 20px;
+  margin: 0; /* iPadでは余白（20px）があると、そこから画面がズレやすいので0がおすすめ */
   background: linear-gradient(
     180deg,
     #eaf7f9 0%,
     #f5fcfd 100%
   );
+  
+  /* --- ここから追加：iPad/タッチ対策 --- */
+  overscroll-behavior: none; /* 画面端のバウンス防止 */
+  user-select: none;         /* 意図しないテキスト選択を防止 */
+  -webkit-user-select: none;
+  touch-action: none;        /* ブラウザのジェスチャー（ズーム等）を無効化 */
+  /* ---------------------------------- */
+}
+
+/* 文字入力が必要な場所だけ、ブラウザ標準の挙動を許可する */
+input, textarea {
+  user-select: auto;
+  -webkit-user-select: auto;
+  touch-action: auto;
 }
 
 /* ボタン共通 */
