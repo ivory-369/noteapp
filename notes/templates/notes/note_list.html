@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ノート一覧</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>ノート一覧</h1>
+    <a href="{% url 'notes:create' %}" class="new-note-btn">＋ 新規作成</a>
+  </div>
+
+
+  <div class="card-container">
+    {% for note in notes %}
+      <div class="note-card">
+
+        <!--  画像エリア -->
+        {% if note.image %}
+  <a href="{% url 'notes:edit' note.id %}">
+    <img src="{{ note.image.url }}" alt="Note Image">
+  </a>
+{% else %}
+  <div class="no-image">
+    画像は登録されていません
+  </div>
+{% endif %}
+
+
+        <!-- 🔹 ノート情報 -->
+        <div class="note-info">
+          <strong>{{ note.title }}</strong><br>
+          カテゴリ: {{ note.category.name }}<br>
+          作成日: {{ note.created_at }}
+        </div>
+
+        <!-- 🔹 アクションボタン -->
+        <div class="note-actions">
+          <a href="{% url 'notes:edit' note.id %}" class="btn edit-btn">編集</a>
+          <a href="{% url 'notes:delete' note.id %}" class="btn delete-btn">削除</a>
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
+
+</body>
+
+</html>

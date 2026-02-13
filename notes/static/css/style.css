@@ -1,0 +1,325 @@
+/* =========================
+   共通スタイル（全画面）
+========================= */
+
+/* 全体 */
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  background: linear-gradient(
+    180deg,
+    #eaf7f9 0%,
+    #f5fcfd 100%
+  );
+}
+
+/* ボタン共通 */
+button {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(200, 220, 225, 0.7);
+  border-radius: 6px;
+  color: #333;
+  padding: 8px 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: background-color 0.2s ease,
+              box-shadow 0.2s ease,
+              transform 0.1s ease;
+}
+
+button:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* エラー表示 */
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+/* =========================
+   ノート作成・編集画面専用
+========================= */
+
+/* フォーム全体 */
+form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* ラベルと入力欄 */
+form label {
+  display: inline-block;
+  width: 80px;
+  margin-bottom: 5px;
+}
+
+form input[type="text"], form select {
+  width: calc(100% - 90px);
+  padding: 6px 8px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+form input[type="text"]:focus,
+form select:focus {
+  outline: none;
+  border-color: #7ccfdc;
+  box-shadow: 0 0 0 2px rgba(124, 207, 220, 0.3);
+}
+
+/* 描画キャンバス */
+#drawArea {
+  width: 100%;
+  max-width: 600px;
+  margin: 15px auto;
+}
+
+#drawArea canvas {
+  width: 100%;
+  height: 500px;
+  border: 1.5px solid #cfd8dc;
+  border-radius: 8px;
+  background-color: #fdfefe;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.6),
+    0 6px 10px rgba(0,0,0,0.08);
+  touch-action: none;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* ツールバー */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tool-group span {
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.tool-group button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(200, 220, 225, 0.7);
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  font-size: 14px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.tool-group button:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.tool-group button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* 色ボタン丸く */
+.color-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  padding: 0;
+}
+
+/* カレント表示 */
+.tool-btn.active,
+.size-btn.active {
+  background-color: rgba(74, 144, 226, 0.2);
+  border: 1px solid #4a90e2;
+  box-shadow: 0 0 4px rgba(74,144,226,0.3);
+}
+
+.color-btn.active {
+  border: 2px solid #4a90e2;
+  box-shadow: 0 0 4px rgba(74,144,226,0.4);
+}
+
+/* 既存画像表示 */
+#imagePreview {
+  border: 1.5px solid #cfd8dc;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  background-color: rgba(255,255,255,0.9);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+#imagePreview img {
+  width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+
+/* =========================
+   ノート一覧画面専用
+========================= */
+
+/* 新規作成ボタン */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.new-note-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: #4a90e2;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: background-color 0.2s;
+}
+
+.new-note-btn:hover {
+  background-color: #357ABD; /* ホバー時色変更 */
+}
+
+/* カードレイアウト */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.note-card {
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.note-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.note-card img {
+  width: 100%;
+  height: 150px;        /* カード内サムネイルの高さ */
+  object-fit: contain;  /* cover → contain に変更 */
+  display: block;
+  background-color: #f9f9f9; /* 空白部分の背景色 */
+}
+
+.note-info {
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+
+/* ノート一覧カード内ボタン */
+.note-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  gap: 10px; /* ボタン間の間隔 */
+}
+
+.note-actions .btn {
+  flex: 1;                 /* ボタンを均等幅に */
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+/* 編集ボタン */
+.note-actions .edit-btn {
+  background-color: #4a90e2;
+}
+
+.note-actions .edit-btn:hover {
+  background-color: #357ab8;
+}
+
+/* 削除ボタン */
+.note-actions .delete-btn {
+  background-color: #f44336;
+}
+
+.note-actions .delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* 画像がない場合の表示 */
+.no-image {
+  width: 100%;
+  height: 150px;          /* サムネイル画像と同じ高さ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 14px;
+  border-radius: 6px;
+  text-align: center;
+  padding: 10px;
+}
+
+/* =========================
+   レスポンシブ対応
+========================= */
+/* PC: 3列以上（画面幅 > 1024px） */
+@media screen and (min-width: 1025px) {
+  .card-container {
+    grid-template-columns: repeat(4, 1fr); /* 最大4列 */
+  }
+}
+
+/* タブレット: 2列（画面幅 768px〜1024px） */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .card-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* スマホ: 1列（画面幅 < 768px） */
+@media screen and (max-width: 767px) {
+  .card-container {
+    grid-template-columns: 1fr;
+  }
+}
+

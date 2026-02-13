@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{% if note %}ノート編集{% else %}ノート作成{% endif %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<h2 style="text-align:center;">{% if note %}ノート編集{% else %}ノート作成{% endif %}</h2>
+
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  <!-- タイトル -->
+  <label>タイトル：</label>
+  <input type="text" name="title" value="{{ note.title|default:'' }}"><br>
+
+  <!-- カテゴリ -->
+  {% if categories %}
+  <label>カテゴリ：</label>
+  <select name="category">
+    {% for cat in categories %}
+      <option value="{{ cat.id }}" {% if note and note.category.id == cat.id %}selected{% endif %}>
+        {{ cat.name }}
+      </option>
+    {% endfor %}
+  </select><br>
+  {% else %}
+  <p>カテゴリがありません。管理画面でカテゴリを作成してください。</p>
+  {% endif %}
+
+  <!-- 編集画面：既存画像 + 切替ボタン + 更新 -->
+  {% if note and note.image %}
+  <div id="imagePreview">
+    <img src="{{ note.image.url }}"><br>
+    <button type="button" id="switchToDraw">✏ この画像を削除して新規作成</button>
+    <button type="submit">更新</button>
+  </div>
+  <input type="hidden" id="replaceImage" name="replace_image" value="false">
+  {% endif %}
+
+  <!-- 描画エリア（新規作成は表示、編集は初期非表示） -->
+  <div id="drawArea" {% if note and note.image %}style="display:none;"{% endif %}>
+    <!-- 描画ツールバー -->
+    <div class="toolbar">
+  <!-- ツール選択 -->
+  <div class="tool-group">
+    <span>ツール:</span>
+    <button type="button" class="tool-btn" data-tool="pen">ペン</button>
+    <button type="button" class="tool-btn" data-tool="eraser">消しゴム</button>
+  </div>
+
+  <!-- 太さ選択（ペン・消しゴム共通） -->
+  <div class="tool-group" id="sizeGroup">
+    <span>太さ:</span>
+    <button type="button" class="size-btn" data-size="2">細</button>
+    <button type="button" class="size-btn" data-size="5">中</button>
+    <button type="button" class="size-btn" data-size="10">太</button>
+  </div>
+
+  <!-- 色選択（ペンのみ） -->
+  <div class="tool-group" id="penColorGroup">
+    <span>色:</span>
+    <button type="button" class="color-btn" data-color="#000000" style="background:#000;"></button>
+    <button type="button" class="color-btn" data-color="#e53935" style="background:#e53935;"></button>
+    <button type="button" class="color-btn" data-color="#1e88e5" style="background:#1e88e5;"></button>
+    <button type="button" class="color-btn" data-color="#43a047" style="background:#43a047;"></button>
+  </div>
+</div>
+
+    <canvas id="canvas"></canvas>
+    <div class="button-group">
+      <button type="button" id="clearBtn">クリア</button>
+      <button type="submit">{% if note %}保存{% else %}保存{% endif %}</button>
+    </div>
+  </div>
+
+  <input type="hidden" id="imageData" name="image_data">
+</form>
+
+<script>
+// ========================
+// 変数初期化
+// ========================
+let currentColor = "#000000";  // 初期色：黒
+let baseLineWidth = 2;         // 初期太さ：細
+let currentTool = "pen";       // 初期ツール：ペン
+
+const canvas = document.getElementById("canvas"); 
+const ctx = canvas.getContext("2d");
+let drawing = false;
+let hasDrawing = false;   // 追加：描画判定フラグ
+
+// ========================
+// canvasサイズをCSS表示に合わせる
+// ========================
+function resizeCanvas() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+}
+
+// 初期化
+resizeCanvas();
+
+// ウィンドウリサイズ時にも対応
+window.addEventListener("resize", resizeCanvas);
+
+// ========================
+// 編集画面：既存画像 → 描画切替
+// ========================
+const switchBtn = document.getElementById("switchToDraw");
+if (switchBtn) {
+    switchBtn.addEventListener("click", () => {
+        document.getElementById("imagePreview").style.display = "none";
+        document.getElementById("drawArea").style.display = "block";
+        document.getElementById("replaceImage").value = "true";
+        resizeCanvas();
+    });
+}
+
+// ========================
+// ツール切替（ペン・消しゴム）＋カレント表示
+// ========================
+document.querySelectorAll(".tool-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        currentTool = btn.dataset.tool;
+
+        // カレント表示
+        document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // ペンなら色選択表示、消しゴムは非表示
+        if (currentTool === "pen") {
+            document.getElementById("penColorGroup").style.display = "flex";
+        } else {
+            document.getElementById("penColorGroup").style.display = "none";
+        }
+    });
+});
+
+// ========================
+// 色選択（ペンのみ）＋カレント表示
+// ========================
+document.querySelectorAll(".color-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        currentColor = btn.dataset.color;
+        currentTool = "pen"; // 色選択したら自動でペン
+        document.getElementById("penColorGroup").style.display = "flex";
+
+        // カレント表示
+        document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // ペンボタンもカレント
+        document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+        document.querySelector(".tool-btn[data-tool='pen']").classList.add("active");
+    });
+});
+
+// ========================
+// 太さ選択（ペン・消しゴム共通）＋カレント表示
+// ========================
+document.querySelectorAll(".size-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        baseLineWidth = parseInt(btn.dataset.size);
+
+        // カレント表示
+        document.querySelectorAll(".size-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+    });
+});
+
+// ========================
+// クリアボタン
+// ========================
+const clearBtn = document.getElementById("clearBtn");
+if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasDrawing = false;   // ← 全消ししたら未描画扱い
+    });
+}
+
+// ========================
+// 描画処理（pointer events）
+// ========================
+canvas.addEventListener("pointerdown", (e) => {
+    drawing = true;
+    hasDrawing = true;   // ← 追加（描き始めたらON）
+
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+});
+
+canvas.addEventListener("pointermove", (e) => {
+    if (!drawing) return;
+
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineCap = "round";
+
+    // ツールによって描画方法変更
+    if (currentTool === "pen") {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = currentColor;
+    } else if (currentTool === "eraser") {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.strokeStyle = "rgba(0,0,0,1)";
+    }
+
+    ctx.lineWidth = baseLineWidth;
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+});
+
+canvas.addEventListener("pointerup", () => {
+    drawing = false;
+    ctx.beginPath();
+});
+
+canvas.addEventListener("pointerleave", () => {
+    drawing = false;
+    ctx.beginPath();
+});
+
+// ========================
+// 何も描いていないかチェック（完全版）
+// ========================
+function isCanvasBlank() {
+    const blank = document.createElement("canvas");
+    blank.width = canvas.width;
+    blank.height = canvas.height;
+    return canvas.toDataURL() === blank.toDataURL();
+}
+
+// ========================
+// フォーム送信時
+// ========================
+document.querySelector("form").addEventListener("submit", function(e) {
+    const imageInput = document.getElementById("imageData");
+    const replace = document.getElementById("replaceImage");
+
+    if (!replace || replace.value === "true") {
+
+        // ① 一度も描いていない
+        if (!hasDrawing) {
+            alert("何か描いてから保存してください");
+            e.preventDefault();
+            return;
+        }
+
+        // ② 消しゴムで全部消した
+        if (isCanvasBlank()) {
+            alert("何も描かれていません");
+            e.preventDefault();
+            return;
+        }
+
+        imageInput.value = canvas.toDataURL();
+    }
+});
+
+// ========================
+// 初期カレント設定
+// ========================
+window.addEventListener("load", () => {
+    // ツール
+    document.querySelector(".tool-btn[data-tool='pen']").classList.add("active");
+    // 太さ
+    document.querySelector(".size-btn[data-size='2']").classList.add("active");
+    // 色
+    document.querySelector(".color-btn[data-color='#000000']").classList.add("active");
+});
+</script>
+
+
+</body>
+</html>

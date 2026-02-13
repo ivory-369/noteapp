@@ -1,0 +1,39 @@
+/* 全体の調整 */
+body {
+  font-family: sans-serif;
+  margin: 20px;
+}
+
+/* エラー表示 */
+.error {
+  color: red;
+}
+
+/* drawAreaの親幅を画面いっぱいに */
+#drawArea {
+  width: 100%;
+  max-width: 600px; /* 必要に応じて調整 */
+  margin: 10px auto; /* 中央寄せ */
+}
+
+/* canvas自体 */
+#drawArea canvas {
+  width: 100%;    /* 親幅いっぱい */
+  height: 500px;  /* 高さ固定 */
+  border: 1px solid #333;
+  touch-action: none;
+  display: block; /* 余計なスペースを消す */
+}
+
+/* ボタンを横並びで同じサイズ */
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 8px;
+  font-size: 16px;
+}
