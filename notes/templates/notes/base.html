@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- ▼ 子テンプレートがページタイトルを入れる場所 -->
+  <title>{% block title %}{% endblock %}</title>
+
+  <!-- ▼ staticファイルを使う宣言 -->
+  {% load static %}
+
+  <!-- ▼ 共通CSSをここで1回だけ読み込む -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="container">
+  <!-- ▼ 全ページ共通のページタイトル表示エリア -->
+  <div class="page-title">
+    
+    <!-- 子テンプレートのタイトル（中央表示のまま） -->
+    <h1>{% block page_title %}{% endblock %}</h1>
+
+    <!-- ★ 追加：右上ボタン用ブロック -->
+    <div class="page-title-action">
+      {% block page_action %}{% endblock %}
+    </div>
+
+  </div>
+
+  <!-- ▼ 各ページ固有の中身が入る場所 -->
+  <div class="page-content">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+</body>
+</html>
