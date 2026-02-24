@@ -5,28 +5,35 @@
 /* 全体 */
 body {
   font-family: sans-serif;
-  margin: 0; /* iPadでは余白（20px）があると、そこから画面がズレやすいので0がおすすめ */
+  margin: 0; /* iPadでは余白があるとズレやすいので0推奨 */
   background: linear-gradient(
     180deg,
     #eaf7f9 0%,
     #f5fcfd 100%
   );
-  
-  /* 画面全体のコンテナ設定 */
+
+  /* --- iPad/タッチ対策 --- */
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+
+/* 画面全体コンテナ */
 .container {
-  max-width: 1000px; /* 画面が広がりすぎないように制限 */
-  margin: 0 auto;    /* 中央寄せ */
-  padding: 0 20px;   /* 左右にしっかり余白を確保 */
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
   box-sizing: border-box;
 }
 
-  /* 共通ページタイトル */
+/* 共通ページタイトル */
 .page-title {
-  display: flex;              /* flex 行 */
-  justify-content: center;    /* 横中央 */
-  align-items: center;        /* 高さ中央 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 8px 0;
-  height: 32px;               /* 高さ固定で上下中央を安定させる */
+  height: 32px;
   position: relative;
 }
 
@@ -35,24 +42,16 @@ body {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  text-align: center;         /* 念のため中央 */
-  flex: 1;                  /* タイトルが中央に広がる */
+  text-align: center;
+  flex: 1;
 }
 
 /* 右上ボタン */
 .page-title-action {
-  position: absolute;         /* まだ absolute のまま */
+  position: absolute;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-}
-
-  /* --- ここから追加：iPad/タッチ対策 --- */
-  overscroll-behavior: none; /* 画面端のバウンス防止 */
-  user-select: none;         /* 意図しないテキスト選択を防止 */
-  -webkit-user-select: none;
-  touch-action: none;        /* ブラウザのジェスチャー（ズーム等）を無効化 */
-  /* ---------------------------------- */
 }
 
 /* 文字入力が必要な場所だけ、ブラウザ標準の挙動を許可する */
@@ -486,4 +485,16 @@ form select:focus {
     grid-template-columns: 1fr;
   }
 }
+
+canvas {
+  touch-action: none;
+  display: block;
+}
+
+/* --- タブレット描画安定用 --- */
+html, body {
+  height: 100%;
+}
+
+
 
