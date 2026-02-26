@@ -12,13 +12,44 @@
 <!-- 画面上部の見出し -->
 
 {% block page_action %}
+
+  <!-- ★ お気に入りフィルターボタン -->
+  <a href="{% if favorite_only == '1' %}
+              ?{% if selected_category %}category={{ selected_category }}{% endif %}
+            {% else %}
+              ?{% if selected_category %}category={{ selected_category }}&{% endif %}favorite=1
+            {% endif %}"
+     class="favorite-filter-btn {% if favorite_only == '1' %}active{% endif %}">
+     ★
+  </a>
+
   <a href="{% url 'notes:create' %}" class="new-note-btn">
     ＋ 新規作成
   </a>
+
 {% endblock %}
 
 {% block content %}
 <!-- ページ固有部分開始 -->
+
+<!-- カテゴリフィルター -->
+<div class="category-filter">
+  <form method="get">
+    <label for="categorySelect">カテゴリ：</label>
+    <select name="category" id="categorySelect" onchange="this.form.submit()">
+      <option value="">すべて</option>
+      {% for cat in categories %}
+        <option value="{{ cat.id }}"
+          {% if selected_category == cat.id|stringformat:"s" %}
+            selected
+          {% endif %}
+        >
+          {{ cat.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
 
 <div class="card-container">
   {% for note in notes %}
@@ -42,18 +73,30 @@
         作成日: {{ note.created_at }}
       </div>
 
-      <!-- 編集・削除ボタン -->
-      <div class="note-actions">
-        <!-- 編集ボタン -->
-        <a href="{% url 'notes:edit' note.id %}" class="btn edit-btn">編集</a>
+      <!-- 編集・削除・お気に入りボタン -->
+<div class="note-actions">
+  <!-- 編集ボタン -->
+  <a href="{% url 'notes:edit' note.id %}" class="btn edit-btn">
+    編集
+  </a>
 
-        <!-- 削除ボタン（POST + CSRF） -->
-        <form method="post" action="{% url 'notes:delete' note.id %}">
-          {% csrf_token %}
-          <button type="submit" class="btn delete-btn">削除</button>
-        </form>
-      </div>
+  <!-- 削除ボタン（POST + CSRF） -->
+  <form method="post" action="{% url 'notes:delete' note.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn delete-btn">
+      削除
+    </button>
+  </form>
 
+  <!-- ★ お気に入りボタン -->
+  <!-- Ajax で is_favorite を切り替えるボタン -->
+  <button type="button" 
+          class="btn favorite-btn {% if note.is_favorite %}active{% endif %}" 
+          data-note-id="{{ note.id }}">
+    {% if note.is_favorite %}★{% else %}☆{% endif %}
+    お気に入り
+  </button>
+</div>      
     </div>
   {% endfor %}
 
@@ -66,6 +109,32 @@
     </div>
   {% endif %}
 </div>
-
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".favorite-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const noteId = btn.dataset.noteId;
+      fetch(`/notes/favorite/${noteId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Accept": "application/json"
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.is_favorite) {
+          btn.classList.add("active");
+          btn.innerHTML = "★ お気に入り";
+        } else {
+          btn.classList.remove("active");
+          btn.innerHTML = "☆ お気に入り";
+        }
+      })
+      .catch(err => console.error(err));
+    });
+  });
+});
+</script>
 {% endblock %}
 <!-- ページ固有部分終了 -->

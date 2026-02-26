@@ -41,6 +41,14 @@ class Note(models.Model):
     # Categoryが削除されたら関連するNoteも削除される（CASCADE）
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
+    # ==============================
+    # ★ お気に入り機能追加
+    # ==============================
+    # ノートがお気に入りかどうかを保持する BooleanField
+    # 初期値は False（お気に入りではない）
+    is_favorite = models.BooleanField(default=False)
+
+
     # 管理画面やシェルで表示するときにタイトルを返す
     def __str__(self):
         return self.title

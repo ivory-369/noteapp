@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Note, Category
 from django.core.files.base import ContentFile
 import base64
-
+from django.http import JsonResponse
 
 # -----------------------------
-# 共通：カテゴリ取得（D案）
+# 共通：カテゴリ取得
 # -----------------------------
 def get_categories_with_default():
     """
@@ -23,12 +23,16 @@ def get_categories_with_default():
 def note_create(request):
     categories = get_categories_with_default()
 
+    # ★ 追加：ノートが1件以上あるか判定
+    notes_exist = Note.objects.exists()
+
     context = {
         "note": None,                 # 新規作成なので None
         "title": "",
         "categories": categories,
         "selected_category": None,
         "error": "",
+        "notes_exist": notes_exist,   # ★ ここ追加
     }
 
     if request.method == "POST":
@@ -66,7 +70,6 @@ def note_create(request):
 
     return render(request, "notes/note_form.html", context)
 
-
 # -----------------------------
 # 編集
 # -----------------------------
@@ -74,11 +77,15 @@ def note_edit(request, note_id):
     note = get_object_or_404(Note, id=note_id)
     categories = get_categories_with_default()
 
+    # ノートが1件以上あるか判定
+    notes_exist = Note.objects.exists()
+
     context = {
         "note": note,
         "title": note.title,
         "categories": categories,
         "selected_category": note.category.id if note.category else None,
+        "notes_exist": notes_exist,   # ★ これだけ追加
     }
 
     if request.method == "POST":
@@ -110,7 +117,6 @@ def note_edit(request, note_id):
 
     return render(request, "notes/note_form.html", context)
 
-
 # -----------------------------
 # 削除
 # -----------------------------
@@ -123,9 +129,35 @@ def note_delete(request, note_id):
 # 一覧
 # -----------------------------
 def note_list(request):
-    notes = Note.objects.all().order_by("-created_at")
-    return render(request, "notes/note_list.html", {"notes": notes})
+    # GETパラメータでカテゴリID取得
+    category_id = request.GET.get("category")     # カテゴリ
+    favorite_only = request.GET.get("favorite")   # ★フィルター
 
+    # ベースクエリ
+    notes = Note.objects.all()
+
+    # カテゴリフィルター
+    if category_id:
+        notes = notes.filter(category_id=category_id)
+        
+    # お気に入りフィルター
+    if favorite_only == "1":
+        notes = notes.filter(is_favorite=True)
+
+    # 並び順
+    notes = notes.order_by("-created_at")
+
+    # プルダウン用カテゴリ
+    categories = Category.objects.all()
+
+    context = {
+        "notes": notes,
+        "categories": categories,
+        "selected_category": category_id,  # 選択状態保持
+        "favorite_only": favorite_only,    # ★状態保持
+    }
+
+    return render(request, "notes/note_list.html", context)
 # -----------------------------
 # トップのルーティング
 # ノートがあれば一覧、なければ新規作成画面へ
@@ -138,3 +170,26 @@ def top_redirect(request):
     else:
         # 新規作成画面へ
         return redirect('notes:create')
+
+# ========================================
+# お気に入り切替ビュー
+# ========================================
+def toggle_favorite(request, note_id):
+    """
+    ノートのお気に入り状態を切り替える
+    Ajaxリクエストで呼び出されることを想定
+    戻り値は JSON で現在の状態を返す
+    """
+    # --- note_id で対象ノートを取得 ---
+    # 存在しない場合は 404 を返す
+    note = get_object_or_404(Note, id=note_id)
+
+    # --- 現在の is_favorite を反転 ---
+    # True → False / False → True
+    note.is_favorite = not note.is_favorite
+
+    # --- DB に保存 ---
+    note.save()
+
+    # --- Ajax 用に JSON レスポンスで状態を返す ---
+    return JsonResponse({"is_favorite": note.is_favorite})

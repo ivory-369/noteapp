@@ -48,6 +48,9 @@ body {
 
 /* 右上ボタン */
 .page-title-action {
+  display: flex;
+  gap: 8px;
+  align-items: center;
   position: absolute;
   right: 0;
   top: 50%;
@@ -383,6 +386,37 @@ form select:focus {
   color: #333;
 }
 
+ /* カテゴリフィルター */
+.category-filter {
+  margin: 10px 0 20px 0;
+  padding: 10px 14px;
+  background-color: rgba(255,255,255,0.6);
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.category-filter form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-filter select { 
+  padding: 5px 8px;           /* 高さ微調整 */
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  vertical-align: middle;     /* label に合わせる */
+  margin-top: 8px;             /* 微調整可能 */
+  box-sizing: border-box;    /* 高さと padding を正確に制御 */
+}
+
+/* ラベル側も縦中央に揃える */
+.category-filter label {
+  display: inline-flex;       /* インラインで縦中央に揃える */
+  align-items: center;        /* テキスト中央に */
+  font-size: 14px;            /* 必要に応じて微調整 */
+}
 
 /* =========================
    ノート一覧カード内ボタン
@@ -460,6 +494,79 @@ form select:focus {
   border-radius: 6px;
   text-align: center;
   padding: 10px;
+}
+
+/* お気に入りボタン共通 */
+.favorite-btn {
+    background-color: #fff;     /* 白背景 */
+    border: 1px solid #ccc;     /* 枠をつける */
+    border-radius: 6px;
+    padding: 6px 10px;          /* 大きさ調整 */
+    font-size: 16px;
+    cursor: pointer;
+    color: #666;                /* ☆ の色（未お気に入り） */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+/* お気に入りボタン：非アクティブ */
+.favorite-btn {
+    background-color: #cccccc;   /* 薄いグレー背景 */
+    border: 1px solid #ccc;      /* 枠を付ける */
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 16px;
+    color: #666;                 /* ☆の色をグレーに */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s, color 0.2s;
+}
+
+/* お気に入りボタン：ホバー時 */
+.favorite-btn:hover {
+    background-color: #fffae6;   /* 薄い黄色 */
+    color: #ffb900;              /* ☆を濃く */
+    transform: scale(1.1);
+}
+
+/* 御気に入ボタン：お気に入り状態 */
+.favorite-btn.active {
+    background-color: gold;      /* 黄色背景 */
+    color: #fff;                 /* ★は白文字 */
+    border-color: gold;
+}
+
+/* お気に入りのフィルターボタン */
+.favorite-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  color: #666;
+  text-decoration: none;
+  border: 1px solid #ccc;
+  transition: all 0.2s ease;
+}
+
+.favorite-filter-btn:hover {
+  background-color: #fffae6;
+  color: #ffb900;
+  transform: scale(1.05);
+}
+
+.favorite-filter-btn.active {
+  background-color: gold;
+  color: #fff;
+  border-color: gold;
 }
 
 /* =========================

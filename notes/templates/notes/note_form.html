@@ -9,6 +9,15 @@
 {% block page_title %}
   {% if note %}ノート編集{% else %}ノート作成{% endif %}
 {% endblock %}
+
+{% block page_action %}
+  {% if notes_exist %}
+    <a href="{% url 'notes:list' %}" class="new-note-btn">
+      ノート一覧へ戻る
+    </a>
+  {% endif %}
+{% endblock %}
+
 <!-- 画面上部のタイトル：常に中央表示 -->
 
 {% block content %}

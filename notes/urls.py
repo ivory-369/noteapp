@@ -34,4 +34,11 @@ urlpatterns = [
     # /delete/<note_id>/ で特定のノートを削除
     # ----------------------------------------
     path("delete/<int:note_id>/", views.note_delete, name="delete"),                        # 一覧
+    
+    # ----------------------------------------
+    # お気に入り切替
+    # /favorite/<note_id>/ で該当ノートの is_favorite を切り替える
+    # Ajax から呼び出す想定
+    # ----------------------------------------
+    path("favorite/<int:note_id>/", views.toggle_favorite, name="toggle_favorite"),
 ]
